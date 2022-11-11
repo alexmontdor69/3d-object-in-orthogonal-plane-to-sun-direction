@@ -144,17 +144,18 @@ class Board extends Component {
     }  
 
     updateModel = ()=> {
-        console.log ('Rotate plane with the reference Model')
+        console.log ('Rotate orthogonal plane to sun beam (azimuth and elevation)')
         let model = this.rotate(this.refModel)
         const zone = this.selectPoints(model)
         const points=  [... new Set(zone.join().split(','))]
+        console.log (`... Detect ${points.length} peripheral point (orange)`)
         points.map(index=> (model[index].color ='orange') )
         return model
     }
 
     updateSegments = (model)=>{
-        console.log ('Create Segment')
         let segments = this.initSegment.map((points)=>([model[points[0]],model[points[1]]]))  
+        console.log (`Create ${segments.length} Segments`)
         return segments
     }
 
@@ -172,14 +173,18 @@ class Board extends Component {
     }
 
     handleXY = () =>{
-        console.log ('Creating a reference Model to dimension')
+        console.log ('_____________________________________') 
+        console.log (`Create a reference ${this.initModel.length} points Model to dimension W, D, P`, 
+        this.objConfig.width,
+        this.objConfig.depth, 
+        this.objConfig.height)
         this.refModel=this.initModel.map(point=>({ 
             x:point.x*this.objConfig.width, 
             y:-point.y*this.objConfig.depth, 
             z:point.z*this.objConfig.height
         }))
 
-        console.log ('... and rotate the object')
+        console.log (`... Position object as per its angle`)
         const cosOAz=Math.cos(this.objAzimuth)
         const sinOAz=Math.sin(this.objAzimuth)
 
@@ -195,18 +200,17 @@ class Board extends Component {
         const model=this.updateModel()
         const segments =this.updateSegments(model)
 
-        console.log ('Display the the model')
+        console.log ('... Display the model')
         this.setState({model, segments, initializing:false})
     }
 
     formatZone=(model)=>{
-        console.log ('Format Zone info')
+        //console.log ('... Format Zone info')
         let zone = model.map(point=>([point.x[0], point.y[0]]))
         return zone
     }
 
     selectPoints= (model)=>{
-        console.log ('Select external points')
         let zone = this.formatZone(model)
         const convexHullZone=convexHull(zone)
         return convexHullZone        
