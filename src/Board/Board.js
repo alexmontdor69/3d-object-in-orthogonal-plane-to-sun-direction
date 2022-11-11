@@ -2,12 +2,15 @@ import {React, Component} from 'react';
 import Point from '../Point/Point';
 import Segment from '../Segment/Segment';
 import './Board.css'
+import convexHull from 'convex-hull';
+
 class Board extends Component { 
     constructor (){
         super()
-        this.sunAzimuth=0 // => 90 degC
-        this.objAzimuth=0 // => 90 degC
-        this.elevation=0/180*Math.PI // Zenith
+        this.sunAzimuth=this.degToRad(30,-180) // => 30 degC
+        this.objAzimuth=this.degToRad(0,-90) // => 90 degC
+        this.elevation=this.degToRad(30,-90)// Zenith
+
         this.initSegment=[]
         this.initModel=[]
         
@@ -27,9 +30,7 @@ class Board extends Component {
             [0,2],
             [0,7],
             [8,4],
-
             [1,3],
-            
             [1,8],
             [2,3],
             [3,6],
@@ -41,21 +42,28 @@ class Board extends Component {
             [5,7],
             [5,6],
             [2,5],
-            
             [7,8]
         ]
+
         this.initModel=[
             {x:0, y:0, z:0, point:'1'},
-            {x:0, y:0, z:5, point:'2'},
+            {x:0, y:0, z:1, point:'2'},
             {x:1, y:0, z:0, point:'3'},
-            {x:1, y:0, z:5, point:'4'},
-            {x:.33, y:0.5, z:7, point:'5'},
+            {x:1, y:0, z:1, point:'4'},
+            {x:.33, y:0.5, z:1.5, point:'5'},
             {x:1, y:1, z:0, point:'6'},
-            {x:1, y:1, z:5, point:'7'},
+            {x:1, y:1, z:1, point:'7'},
             {x:0, y:1, z:0, point:'8'},
-            {x:0, y:1, z:5, point:'9'},
-            {x:.66, y:0.5, z:7, point:'10'},
+            {x:0, y:1, z:1, point:'9'},
+            {x:.66, y:0.5, z:1.5, point:'10'},
         ]
+
+        this.objConfig={
+            width:14,
+            depth:9,
+            height:5
+        }
+
         this.handleXY()
     }
 
@@ -79,7 +87,6 @@ class Board extends Component {
         return m;
       }
     
-
     handleIncreaseObjAzimuth = ()=>{
         this.objAzimuth +=5/180*Math.PI
         this.setState({objAzimuth:this.objAzimuth},this.handleXY)   
@@ -117,28 +124,32 @@ class Board extends Component {
         const cosEl=Math.cos(this.elevation)
         const sinEl=Math.sin(this.elevation)
         
-        let Y= [
+/*         let Y= [
             [cosEl, 0, sinEl],
             [0, 1, 0],
-            [-sinEl, 0, cosEl]];
+            [-sinEl, 0, cosEl]]; */
 
         let ZAz= [
             [cosSAz,-sinSAz,0],
             [sinSAz,cosSAz,0],
             [0,0,1]];
-/*         let X= [
+        let X= [
             [1,0,0],
             [0,cosEl,-sinEl],
-            [0,sinEl,cosEl]]; */
+            [0,sinEl,cosEl]]; 
        
-        const rotationMAtrix = this.multiply( Y,ZAz)
-        const rotationMAtrixT = this.transpose(rotationMAtrix)
+        const rotationMAtrix = this.multiply( this.transpose(X),this.transpose(ZAz))
+        const rotationMAtrixT = rotationMAtrix
 
-        return model.map(point=>this.multiply(rotationMAtrixT, point)).map(point=>({x:point[0], y:point[1],z:point[2]}))
+        return model.map(point=>this.multiply(rotationMAtrixT, point)).map(point=>({x:point[0], y:point[1],z:point[2], color:point[3]}))
     }  
 
     updateModel = ()=>{
         let model = this.rotate(this.refModel)
+        const zone = this.selectPoints(model)
+        const points=  [... new Set(zone.join().split(','))]
+        points.map(index=> (model[index].color ='orange') )
+        
         return model
     }
 
@@ -148,8 +159,23 @@ class Board extends Component {
         return segments
     }
 
+    resetHandleXY = ()=>{
+        this.sunAzimuth=this.degToRad(180,-180) // => 30 degC
+        this.objAzimuth=this.degToRad(90,-90) // => 90 degC
+        this.elevation=this.degToRad(90,-90)// Zenith
+        this.setState({
+            sunAzimuth:this.sunAzimuth,
+            objAzimuth:this.objAzimuth,
+            elevation:this.elevation
+        }, this.handleXY())
+    }
+
     handleXY = () =>{
-        this.refModel=this.initModel.map(point=>({ x:point.x*10, y:-point.y*10, z:point.z*10 }))
+        this.refModel=this.initModel.map(point=>({ 
+            x:point.x*this.objConfig.width, 
+            y:-point.y*this.objConfig.depth, 
+            z:point.z*this.objConfig.height
+        }))
 
         // Creating the reference Model with the correct orientation
         const cosOAz=Math.cos(this.objAzimuth)
@@ -171,17 +197,28 @@ class Board extends Component {
         this.setState({model, segments, initializing:false})
     }
 
-/*     handleYZ = () =>{
-        this.refModel=this.initModel.map(point=>({ x:point.y, y:-point.z, z:point.x }))
-        const model=this.updateModel()
-        this.setState({model})
+    formatZone=(model)=>{
+        console.log ('Format Zone info')
+        let zone = model.map(point=>([point.x[0], point.y[0]]))
+        return zone
     }
-    handleXZ = () =>{
-        this.refModel=this.initModel.map(point=>({ x:point.x, y:-point.z, z:point.y }))
-        const model=this.updateModel()
-        console.log (model)
-        this.setState({model})
-    } */
+
+    selectPoints= (model)=>{
+        console.log ('Select external points')
+        let zone = this.formatZone(model)
+        const convexHullZone=convexHull(zone)
+        return convexHullZone        
+    }
+
+    radToDeg=(a,offset=0)=>{
+        return offset+Math.floor((a) /Math.PI*180)
+    }
+
+    degToRad=(a,offset=0)=>{
+        let angle = a+offset
+        angle =angle/180*Math.PI
+        return angle
+    }
 
     render () {
         return(
@@ -190,22 +227,21 @@ class Board extends Component {
                 <div>Initializing Boards</div> :
                 <>
                     <div>
-                        <button onClick={this.handleDecreaseObjAzimuth}>Object Az -5 {(3.14/2+this.state.objAzimuth) /3.14*180}</button>
-                        <button onClick={this.handleIncreaseObjAzimuth}>Object Az +5 {(3.14/2+this.state.objAzimuth) /3.14*180}</button>
+                        <button onClick={this.handleDecreaseObjAzimuth}>Object Az -5 {this.radToDeg(this.state.objAzimuth,90)}</button>
+                        <button onClick={this.handleIncreaseObjAzimuth}>Object Az +5 {this.radToDeg(this.state.objAzimuth,90)}</button>
                         
-                        <button onClick={this.handleDecreaseSunAzimuth}>Sun Az -5 {(3.14/2+this.state.sunAzimuth) /3.14*180}</button>
-                        <button onClick={this.handleIncreaseSunAzimuth}>Sun Az +5 {(3.14/2+this.state.sunAzimuth) /3.14*180}</button>
+                        <button onClick={this.handleDecreaseSunAzimuth}>Sun Az -5 {this.radToDeg(this.state.sunAzimuth,180)}</button>
+                        <button onClick={this.handleIncreaseSunAzimuth}>Sun Az +5 {this.radToDeg(this.state.sunAzimuth,180)}</button>
 
-                        <button onClick={this.handleDecreaseElevation}>Elevation -1 {(3.14/2-this.state.elevation)/3.14*180}</button>
-                        <button onClick={this.handleIncreaseElevation}>Elevation +1 {(3.14/2-this.state.elevation)/3.14*180}</button>
-                        <button onClick={this.handleXY}>XY plane </button>
-        {/*                 <button onClick={this.handleXZ}>XZ plane </button>
-                        <button onClick={this.handleYZ}>YZ plane </button> */}
+                        <button onClick={this.handleDecreaseElevation}>Elevation -1 {this.radToDeg(this.state.elevation,90)}</button>
+                        <button onClick={this.handleIncreaseElevation}>Elevation +1 {this.radToDeg(this.state.elevation,90)}</button>
+                        
+                        <button onClick={this.resetHandleXY}>XY plane</button>
                     </div>
                     <div>
                         <svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
-                            {this.state.model.map((point,index)=> <Point point={point} key={"p"+index}/>)}
                             {this.state.segments.map((points,index)=> <Segment points={points} key={"s"+index}/>)}
+                            {this.state.model.map((point,index)=> <Point point={point} key={"p"+index}/>)}
                         </svg>
                     </div>
                 </>

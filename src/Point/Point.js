@@ -10,7 +10,8 @@ class Point extends Component{
         this.state={
             x:props.point.x,
             y:props.point.y,
-            z:props.point.z
+            z:props.point.z,
+            color:props.point.color ||'blue'
         }
     }
 
@@ -21,13 +22,14 @@ class Point extends Component{
                     x:nextProps.point.x,
                     y:nextProps.point.y,
                     z:nextProps.point.z,
+                    color:nextProps.point.color
                 })
             }
     } 
-    
+
     render (){
         return (
-            <circle cx={this.state.x} cy={this.state.y} r={1} />
+            <circle cx={this.state.x} cy={this.state.y} r={1} fill={this.state.color}/>
             )
         }
 }
