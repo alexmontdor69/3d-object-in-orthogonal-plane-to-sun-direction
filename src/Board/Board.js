@@ -123,43 +123,44 @@ class Board extends Component {
         
         const cosEl=Math.cos(this.elevation)
         const sinEl=Math.sin(this.elevation)
-        
-/*         let Y= [
-            [cosEl, 0, sinEl],
-            [0, 1, 0],
-            [-sinEl, 0, cosEl]]; */
-
-        let ZAz= [
+        // rotation Matrix around Z for Azimut
+        const ZAz= [
             [cosSAz,-sinSAz,0],
             [sinSAz,cosSAz,0],
             [0,0,1]];
-        let X= [
+        // rotation Matrix around X for Elevation
+        const X= [
             [1,0,0],
             [0,cosEl,-sinEl],
             [0,sinEl,cosEl]]; 
-       
-        const rotationMAtrix = this.multiply( this.transpose(X),this.transpose(ZAz))
-        const rotationMAtrixT = rotationMAtrix
+        
+        const ZAzT=this.transpose(ZAz)
+        const XT=this.transpose(X)
 
-        return model.map(point=>this.multiply(rotationMAtrixT, point)).map(point=>({x:point[0], y:point[1],z:point[2], color:point[3]}))
+        const rotationMAtrix = this.multiply( XT,ZAzT)
+
+
+        return model.map(point=>this.multiply(rotationMAtrix, point)).map(point=>({x:point[0], y:point[1],z:point[2], color:''}))
     }  
 
-    updateModel = ()=>{
+    updateModel = ()=> {
+        console.log ('Rotate plane with the reference Model')
         let model = this.rotate(this.refModel)
         const zone = this.selectPoints(model)
         const points=  [... new Set(zone.join().split(','))]
         points.map(index=> (model[index].color ='orange') )
-        
         return model
     }
 
     updateSegments = (model)=>{
-        console.log ("model",model,model[this.initSegment[0][0]], model[this.initSegment[0][1]])
+        console.log ('Create Segment')
         let segments = this.initSegment.map((points)=>([model[points[0]],model[points[1]]]))  
         return segments
     }
 
     resetHandleXY = ()=>{
+        console.log ('Reset Angles')
+        
         this.sunAzimuth=this.degToRad(180,-180) // => 30 degC
         this.objAzimuth=this.degToRad(90,-90) // => 90 degC
         this.elevation=this.degToRad(90,-90)// Zenith
@@ -171,13 +172,14 @@ class Board extends Component {
     }
 
     handleXY = () =>{
+        console.log ('Creating a reference Model to dimension')
         this.refModel=this.initModel.map(point=>({ 
             x:point.x*this.objConfig.width, 
             y:-point.y*this.objConfig.depth, 
             z:point.z*this.objConfig.height
         }))
 
-        // Creating the reference Model with the correct orientation
+        console.log ('... and rotate the object')
         const cosOAz=Math.cos(this.objAzimuth)
         const sinOAz=Math.sin(this.objAzimuth)
 
@@ -185,15 +187,15 @@ class Board extends Component {
             [cosOAz,-sinOAz,0],
             [sinOAz,cosOAz,0],
             [0,0,1]];
-    
+        
         this.refModel = this.refModel
                             .map(point=>([[point.x],[point.y],[point.z]]))
                             .map(point=>this.multiply(ZObj,point))
 
-        // Calculation of the coordinates in a plane orthogonal to the sun beams
         const model=this.updateModel()
         const segments =this.updateSegments(model)
 
+        console.log ('Display the the model')
         this.setState({model, segments, initializing:false})
     }
 
