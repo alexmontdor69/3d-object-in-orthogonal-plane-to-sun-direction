@@ -3,6 +3,8 @@ import Point from '../Point/Point';
 import Segment from '../Segment/Segment';
 import './Board.css'
 import convexHull from 'convex-hull';
+import models from '../Models/models';
+import ReactSelect from 'react-select';
 
 class Board extends Component { 
     constructor (){
@@ -22,48 +24,26 @@ class Board extends Component {
             objAzimuth :this.objAzimuth,
             elevation : this.elevation
         }
-}
+        this.options=Object.keys(models).map(value=>({value,label:models[value].name}))
+        
+    }
+
     componentDidMount(){
+
         // initialization
-        this.initSegment=[
-            [0,1],
-            [0,2],
-            [0,7],
-            [8,4],
-            [1,3],
-            [1,8],
-            [2,3],
-            [3,6],
-            [3,9],
-            [1,4],
-            [4,9],
-            [6,8],
-            [6,9],
-            [5,7],
-            [5,6],
-            [2,5],
-            [7,8]
-        ]
-
-        this.initModel=[
-            {x:0, y:0, z:0, point:'1'},
-            {x:0, y:0, z:1, point:'2'},
-            {x:1, y:0, z:0, point:'3'},
-            {x:1, y:0, z:1, point:'4'},
-            {x:.33, y:0.5, z:1.5, point:'5'},
-            {x:1, y:1, z:0, point:'6'},
-            {x:1, y:1, z:1, point:'7'},
-            {x:0, y:1, z:0, point:'8'},
-            {x:0, y:1, z:1, point:'9'},
-            {x:.66, y:0.5, z:1.5, point:'10'},
-        ]
-
+        this.selectModelFrom('treePoints')
+        
+    }
+s
+    selectModelFrom= (choice)=> {
+        console.log (`Display the model ${choice}` ,choice)
+        this.initSegment=models[choice].segments
+        this.initModel=models[choice].points
         this.objConfig={
-            width:14,
-            depth:9,
-            height:5
+            width:models[choice].width,
+            depth:models[choice].depth,
+            height:models[choice].height,
         }
-
         this.handleXY()
     }
 
@@ -139,8 +119,7 @@ class Board extends Component {
 
         const rotationMAtrix = this.multiply( XT,ZAzT)
 
-
-        return model.map(point=>this.multiply(rotationMAtrix, point)).map(point=>({x:point[0], y:point[1],z:point[2], color:''}))
+        return model.map(point=>this.multiply(rotationMAtrix, point)).map(point=>({x:point[0], y:point[1], z:point[2], color:''}))
     }  
 
     updateModel = ()=> {
@@ -149,7 +128,7 @@ class Board extends Component {
         const zone = this.selectPoints(model)
         const points=  [... new Set(zone.join().split(','))]
         console.log (`... Detect ${points.length} peripheral point (orange)`)
-        points.map(index=> (model[index].color ='orange') )
+        points.map((index)=> {model[index]= {...model[index], 'color' :'orange'}})
         return model
     }
 
@@ -229,8 +208,10 @@ class Board extends Component {
     render () {
         return(
         <>
+         <ReactSelect options={this.options} onChange={(model)=>this.selectModelFrom(model.value)}/>
             {this.state.initializing?
                 <div>Initializing Boards</div> :
+
                 <>
                     <div>
                         <button onClick={this.handleDecreaseObjAzimuth}>Object Az -5 {this.radToDeg(this.state.objAzimuth,90)}</button>
@@ -246,8 +227,8 @@ class Board extends Component {
                     </div>
                     <div>
                         <svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
-                            {this.state.segments.map((points,index)=> <Segment points={points} key={"s"+index}/>)}
-                            {this.state.model.map((point,index)=> <Point point={point} key={"p"+index}/>)}
+                            {this.state.segments.map((points,index)=> <Segment points={points} key={"s"+this.state.segments.length+this.state.model.length+index}/>)}
+                            {this.state.model.map((point,index)=> <Point point={point} key={"p"+this.state.segments.length+this.state.model.length+index}/>)}
                         </svg>
                     </div>
                 </>
