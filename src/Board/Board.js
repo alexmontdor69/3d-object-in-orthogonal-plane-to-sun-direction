@@ -91,11 +91,16 @@ class Board extends Component {
 
         this.handleXY()
     }
-
+    isPeripheral =(index, references) => {
+        return references && references.length >0 && references.some(id=>id===index.toString())
+    }
     handleXY (){
         console.log ('==========================') 
 
-        const points =this.model.getPoints()
+        let points =this.model.getPoints()
+        const pointIndexes =this.model.getPeripheralPointIndexes()
+        points=points.map((point,index)=>({...point, color :this.isPeripheral(index,pointIndexes)?'orange':''}))
+
         const segments =this.model.getSegments()
 
         console.log ('__Display the model')

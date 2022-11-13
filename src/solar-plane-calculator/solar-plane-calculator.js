@@ -90,28 +90,14 @@ class SolarPlaneCalculator {
         return zone
     }
     
-    findExternalPoints= (model)=>{
+    findPeripheralZone= (model)=>{
         let pointsCluster = this.formatZone(model)
-        const convexHullZone=convexHull(pointsCluster)
-        return convexHullZone        
-    }
-
-    getPeripheralPoints (model) {
-        const zone = this.findExternalPoints(model)
-        const points=  [... new Set(zone.join().split(','))]
-        console.log (`... Detect ${points.length} peripheral points (orange)`)
-        // points.map((index)=> {this.transformedPoints[index]= {...this.transformedPoints[index], 'color' :'orange'}})
-        return points
-    }
-
-    isPeripheral =(index, references) => {
-        return references.some(pointNumber=>pointNumber===index.toString())
+        const peripheralZone=convexHull(pointsCluster)
+        return peripheralZone        
     }
 
     transformModel (){
-        const tempModel = this.refModel.map(point=>this.multiply(this.rotationMatrix, point)).map((point)=>({x:point[0][0], y:point[1][0], z:point[2][0], color:''}))
-        const peripheralPoints= this.getPeripheralPoints(tempModel)
-        this.transformedPoints=tempModel.map((point,index)=>({...point, color :this.isPeripheral(index,peripheralPoints)?'orange':''}))
+        this.transformedPoints = this.refModel.map(point=>this.multiply(this.rotationMatrix, point)).map((point)=>({x:point[0][0], y:point[1][0], z:point[2][0]}))
     }
 
     transpose(array){
@@ -139,6 +125,16 @@ class SolarPlaneCalculator {
     getPoints () {
         console.log (`Display ${this.transformedPoints.length} Points`)
         return this.transformedPoints
+    }
+
+    getPeripheralPointIndexes (){
+        if (this.transformedPoints.length ==0)
+            return []
+        const zone = this.findPeripheralZone(this.transformedPoints)
+        const pointIndexes=  [... new Set(zone.join().split(','))]
+        console.log (`... Detect ${pointIndexes.length} peripheral points (orange)`)
+        return pointIndexes
+        
     }
 
     setObjAzimuth (angle){
