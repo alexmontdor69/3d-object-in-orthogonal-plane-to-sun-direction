@@ -4,7 +4,7 @@ import Segment from '../Segment/Segment';
 import './Board.css'
 import models from '../Models/models';
 import ReactSelect from 'react-select';
-import SolarPlaneCalculator from '../solar-plane-calculator/solar-plane-calculator';
+import SolarPlaneCalculator from 'solar-plane-calculator';
 import SunPositionIndicator from '../SunPositionIndicator/SunPositionIndicator';
 
 class Board extends Component { 
