@@ -30,7 +30,10 @@ class SolarPlaneCalculator {
             depth:this.model.depth,
             height:this.model.height,
         }
-
+        this.translationVector=[
+            this.model.x0||0,
+            this.model.y0||0,
+            this.model.z0||0 ]
         console.log (`Create a reference ${this.initModel.length} points Model to dimension W, D, P`, 
             this.objConfig.width,
             this.objConfig.depth, 
@@ -44,10 +47,21 @@ class SolarPlaneCalculator {
         const cosOAz=Math.cos(this.objAzimuth)
         const sinOAz=Math.sin(this.objAzimuth)
 
+        // position as per aerial view
         let ZObj= [
-            [cosOAz,-sinOAz,0],
-            [sinOAz,cosOAz,0],
-            [0,0,1]];
+            [cosOAz,-sinOAz,0,0],
+            [sinOAz,cosOAz,0,0],
+            [0,0,1,0],
+            [0,0,0,1]];
+
+        // translation to the symetrical axis
+        const T=[
+            [1,0,0,-this.translationVector[0]],
+            [0,1,0,-this.translationVector[1]],
+            [0,0,1,-this.translationVector[2]],
+            [0,0,0,1]]
+
+        const matrix = multiply(ZObj,T)
 
         this.refModel = this.initModel
                             .map(point=>({ 
@@ -55,8 +69,8 @@ class SolarPlaneCalculator {
                                             y:-point.y*this.objConfig.depth, 
                                             z:point.z*this.objConfig.height
                                         }))
-                            .map(point=>([[point.x],[point.y],[point.z]])) // refModel being an array of points vector 3x1
-                            .map(point=>multiply(ZObj,point))
+                            .map(point=>([[point.x],[point.y],[point.z],[1]])) // refModel being an array of points vector 3x1
+                            .map(point=>multiply(matrix,point))
     }
 
     buildRotationMatrix (){
@@ -69,14 +83,17 @@ class SolarPlaneCalculator {
         const sinEl=Math.sin(this.elevation)
         // rotation Matrix around Z for Azimut
         const ZAz= [
-            [cosSAz,-sinSAz,0],
-            [sinSAz,cosSAz,0],
-            [0,0,1]];
+            [cosSAz,-sinSAz,0,0],
+            [sinSAz,cosSAz,0,0],
+            [0,0,1,0],
+            [0,0,0,1],
+        ];
         // rotation Matrix around X for Elevation
         const X= [
-            [1,0,0],
-            [0,cosEl,-sinEl],
-            [0,sinEl,cosEl]]; 
+            [1,0,0,0],
+            [0,cosEl,-sinEl,0],
+            [0,sinEl,cosEl,0],
+            [0,0,0,1]]; 
 
         const ZAzT=transpose(ZAz)
         const XT=transpose(X)

@@ -91,6 +91,33 @@ class Board extends Component {
 
         this.handleXY()
     }
+
+    resetHandleXZ = ()=>{
+        console.log ('Reset Angles')
+        
+        this.sunAzimuth=this.degToRad(180,-180) // => 30 degC
+        this.objAzimuth=this.degToRad(90,-90) // => 90 degC
+        this.elevation=this.degToRad(0,-90)// Zenith
+        this.model.setObjAzimuth (this.objAzimuth)
+        this.model.setSunAzimuth (this.sunAzimuth)
+        this.model.setElevation(this.elevation)
+
+        this.handleXY()
+    }
+
+    resetHandleYZ = ()=>{
+        console.log ('Reset Angles')
+        
+        this.sunAzimuth=this.degToRad(180,-180) // => 30 degC
+        this.objAzimuth=this.degToRad(180,-90) // => 90 degC
+        this.elevation=this.degToRad(0,-90)// Zenith
+        this.model.setObjAzimuth (this.objAzimuth)
+        this.model.setSunAzimuth (this.sunAzimuth)
+        this.model.setElevation(this.elevation)
+
+        this.handleXY()
+    }
+
     isPeripheral =(index, references) => {
         return references && references.length >0 && references.some(id=>id===index.toString())
     }
@@ -144,6 +171,8 @@ class Board extends Component {
                         <button onClick={this.handleIncreaseElevation}>Elevation +1 {this.radToDeg(this.state.elevation,90)}</button>
                         
                         <button onClick={this.resetHandleXY}>XY plane</button>
+                        <button onClick={this.resetHandleXZ}>XZ plane</button>
+                        <button onClick={this.resetHandleYZ}>YZ plane</button>
                     </div>
                     <div>
                         <svg viewBox="-50 -50 150 150" xmlns="http://www.w3.org/2000/svg">
