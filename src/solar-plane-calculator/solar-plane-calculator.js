@@ -56,7 +56,6 @@ class SolarPlaneCalculator {
                                         }))
                             .map(point=>([[point.x],[point.y],[point.z]])) // refModel being an array of points vector 3x1
                             .map(point=>this.multiply(ZObj,point))
-                            console.log (this.refModel[8])
     }
 
     buildRotationMatrix (){
@@ -113,7 +112,6 @@ class SolarPlaneCalculator {
         const tempModel = this.refModel.map(point=>this.multiply(this.rotationMatrix, point)).map((point)=>({x:point[0][0], y:point[1][0], z:point[2][0], color:''}))
         const peripheralPoints= this.getPeripheralPoints(tempModel)
         this.transformedPoints=tempModel.map((point,index)=>({...point, color :this.isPeripheral(index,peripheralPoints)?'orange':''}))
-        console.log (this.transformedPoints[8])
     }
 
     transpose(array){

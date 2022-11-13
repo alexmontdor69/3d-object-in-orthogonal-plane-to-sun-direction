@@ -13,7 +13,6 @@ class Point extends Component{
     }
 
     componentDidUpdate (prevProps){
-        console.log(this.props.point,prevProps.point)
         if (!_.isEqual(this.props.point,prevProps.point))
             {
                 this.setState ({

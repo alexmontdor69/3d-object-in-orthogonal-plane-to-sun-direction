@@ -98,7 +98,7 @@ class Board extends Component {
         const points =this.model.getPoints()
         const segments =this.model.getSegments()
 
-        console.log ('__Display the model',points[8])
+        console.log ('__Display the model')
         this.setState({
             points, 
             segments, 
