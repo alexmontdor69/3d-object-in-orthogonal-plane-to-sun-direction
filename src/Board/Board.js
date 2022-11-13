@@ -178,6 +178,7 @@ class Board extends Component {
                         <svg viewBox="-50 -50 150 150" xmlns="http://www.w3.org/2000/svg">
                             {this.state.segments.map((points,index)=> <Segment points={points} key={"s"+this.state.segments.length+this.state.points.length+index}/>)}
                             {this.state.points.map((point,index)=> <Point point={point} key={"p"+this.state.segments.length+this.state.points.length+index}/>)}
+                            
                         </svg>
                     </div>
                 </>
