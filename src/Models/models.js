@@ -24,7 +24,8 @@ const models={
         depth:9,
         height:5,
         x0:0,
-        y0:0
+        y0:0,
+        symetrical:true
     },
     "treePoints": {
         name:"Tree",
@@ -51,7 +52,8 @@ const models={
         depth:1,
         height:18,
         x0:2.5,
-        y0:0
+        y0:0,
+        symetrical:true
     }
 }
 

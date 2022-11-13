@@ -8,28 +8,24 @@ class Point extends Component{
     constructor(props){
         super(props)
         this.state={
-            x:props.point.x,
-            y:props.point.y,
-            z:props.point.z,
-            color:props.point.color ||'blue'
+            point:this.props.point
         }
     }
 
-     componentDidUpdate (nextProps){
-        if (!_.isEqual(this.state,nextProps.point))
+    componentDidUpdate (prevProps){
+        console.log(this.props.point,prevProps.point)
+        if (!_.isEqual(this.props.point,prevProps.point))
             {
                 this.setState ({
-                    x:nextProps.point.x,
-                    y:nextProps.point.y,
-                    z:nextProps.point.z,
-                    color:nextProps.point.color
+                    point:this.props.point
+                    
                 })
             }
     } 
 
     render (){
         return (
-            <circle cx={this.state.x} cy={this.state.y} r={1} fill={this.state.color}/>
+            <circle cx={this.state.point.x} cy={this.state.point.y} r={1} fill={this.state.point.color||'blue'}/>
             )
         }
 }

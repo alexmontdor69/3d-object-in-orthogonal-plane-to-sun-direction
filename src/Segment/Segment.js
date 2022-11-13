@@ -11,9 +11,9 @@ class Segment extends Component {
         }
     }
     
-    componentDidUpdate (nextProps) {
-        if (!_.isEqual(nextProps.points, this.state.points)) {
-            this.setState({points:nextProps.points})
+    componentDidUpdate (prevProps) {
+        if (!_.isEqual(prevProps.points, this.props.points)) {
+            this.setState({points:this.props.points})
         }
     }
 
