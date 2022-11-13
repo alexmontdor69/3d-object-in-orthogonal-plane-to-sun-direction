@@ -1,6 +1,6 @@
 # Display a 3D object in a Solar Plane
 
-## Objectives
+## Objective
 The objective is to simulate the position of points of a model in the plane orthogonal to direction of the sun beams.
 
 With the help of the range bar, The user can vary either :
@@ -15,10 +15,11 @@ All the angle are indicated and some graphical indicator allow a better understa
 
 ## SolarPlaneCalculator Class
 
-Class that calculate the plane that is orthogonal to direction of the sun beams.
+This SolarPlaneCalculator class calculates the orthogonal plane to the direction of the sun beams.
 
-It is a rotation Matrix computed from the position of the sun.
-The position of the sun is defined by the azimuth and the elevation angle (standard definition)
+The new coordinates are computed with a rotatton matrix. The polar position of the sun defines this rotation matrix.
+
+The coordinates are given by a model
 
 ### Model Input
 __the models format__
@@ -75,6 +76,7 @@ __the Class methods__
 - setObjAzimuth : Set the azimuth angle (radian) of the object
 - setSunAzimuth : Set the azimuth angle (radian) of the sun
 - setElevation : Set the elevation angle (radian) of the sun
+- getRefModelShape : Get a scaled X-Y plane shape
 
 ## Matrix Lib
 Simple Matrix library to calculate:

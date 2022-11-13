@@ -28,13 +28,6 @@ class Board extends Component {
         
     }
 
-    componentDidMount(){
-
-        // initialization
-        // this.selectModelFrom('treePoints')
-        
-    }
-
     selectModelFrom= (choice)=> {
         console.log (`Display the model ${choice}`)
 
@@ -49,6 +42,7 @@ class Board extends Component {
         const refModelShape = this.model.getRefModelShape(4)
         this.setState({refModelShape},this.handleXY)
     }
+
     handleSunAzimuth=(event)=>{
         this.sunAzimuth=this.degToRad(parseInt(event.target.value),-180)
         this.model.setSunAzimuth (this.sunAzimuth)
