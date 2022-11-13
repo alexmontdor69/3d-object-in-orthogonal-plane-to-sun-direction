@@ -1,5 +1,6 @@
 
 import convexHull from 'convex-hull';
+import { multiply, transpose } from '../matrix-lib/matrix-lib';
 
 
 class SolarPlaneCalculator {
@@ -55,7 +56,7 @@ class SolarPlaneCalculator {
                                             z:point.z*this.objConfig.height
                                         }))
                             .map(point=>([[point.x],[point.y],[point.z]])) // refModel being an array of points vector 3x1
-                            .map(point=>this.multiply(ZObj,point))
+                            .map(point=>multiply(ZObj,point))
     }
 
     buildRotationMatrix (){
@@ -77,10 +78,10 @@ class SolarPlaneCalculator {
             [0,cosEl,-sinEl],
             [0,sinEl,cosEl]]; 
 
-        const ZAzT=this.transpose(ZAz)
-        const XT=this.transpose(X)
+        const ZAzT=transpose(ZAz)
+        const XT=transpose(X)
 
-        const rotationMAtrix = this.multiply( XT, ZAzT)
+        const rotationMAtrix = multiply( XT, ZAzT)
         return rotationMAtrix
     }
 
@@ -97,28 +98,12 @@ class SolarPlaneCalculator {
     }
 
     transformModel (){
-        this.transformedPoints = this.refModel.map(point=>this.multiply(this.rotationMatrix, point)).map((point)=>({x:point[0][0], y:point[1][0], z:point[2][0]}))
+        this.transformedPoints = this.refModel.map(point=>multiply(this.rotationMatrix, point)).map((point)=>({x:point[0][0], y:point[1][0], z:point[2][0]}))
     }
 
-    transpose(array){
-        return  array[0].map((_, colIndex) => array.map(row => row[colIndex]));
-    }
 
-    multiply(a, b) {
-        let aNumRows = a.length, aNumCols = a[0].length,
-            bNumRows = b.length, bNumCols = b[0].length,
-            m = new Array(aNumRows);  // initialize array of rows
-        for (let r = 0; r < aNumRows; ++r) {
-          m[r] = new Array(bNumCols); // initialize the current row
-          for (let c = 0; c < bNumCols; ++c) {
-            m[r][c] = 0;             // initialize the current cell
-            for (let i = 0; i < aNumCols; ++i) {
-              m[r][c] += a[r][i] * b[i][c];
-            }
-          }
-        }
-        return m;
-      }
+
+
     
 // __________________________________________________________________________________________________________
 
