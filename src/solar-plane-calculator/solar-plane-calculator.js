@@ -159,11 +159,22 @@ class SolarPlaneCalculator {
         this.rotationMatrix=this.buildRotationMatrix ()
         this.transformModel()
     }
-    getSegments = (model)=>{
-        let segments = this.initSegment.map((points)=>([this.transformedPoints[points[0]],this.transformedPoints[points[1]]]))  
+    getSegments = (model=this.transformedPoints)=>{
+        let segments = this.initSegment.map((points)=>([model[points[0]],model[points[1]]]))  
         console.log (`Display ${segments.length} Segments`)
         return segments
     }
 
+    getRefModel =(unit)=>{
+        const max = Math.max(this.model.width, this.model.depth)
+        const ratio = unit/max
+        return this.refModel.map(point=>({x:point[0][0]*ratio,y:point[1][0]*ratio}))
+    }
+
+    getRefModelShape =(scale)=>{
+        const refModel = this.getRefModel(scale)
+        return this.getSegments (refModel)
+        
+    }
 }
 export default SolarPlaneCalculator;

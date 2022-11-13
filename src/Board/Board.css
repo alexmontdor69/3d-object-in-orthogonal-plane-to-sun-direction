@@ -1,0 +1,6 @@
+.configurator {
+    display: inline-block;
+    margin: 5px;
+    padding: 2px;
+    border: dotted 1px darkgrey;
+}

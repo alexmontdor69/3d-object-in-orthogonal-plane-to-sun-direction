@@ -5,6 +5,7 @@ import './Board.css'
 import models from '../Models/models';
 import ReactSelect from 'react-select';
 import SolarPlaneCalculator from '../solar-plane-calculator/solar-plane-calculator';
+import SunPositionIndicator from '../SunPositionIndicator/SunPositionIndicator';
 
 class Board extends Component { 
     constructor (){
@@ -38,45 +39,26 @@ class Board extends Component {
         console.log (`Display the model ${choice}`)
 
         this.model=new SolarPlaneCalculator(models[choice], this.objAzimuth, this.sunAzimuth, this.elevation)
-
-        this.setState({initializing:false},this.handleXY)
+        const refModelShape = this.model.getRefModelShape(4)
+        this.setState({initializing:false,refModelShape},this.handleXY)
     }
 
-
-    handleIncreaseObjAzimuth = ()=>{
-        this.objAzimuth +=5/180*Math.PI
+    handleObjAzimuth=(event)=>{
+        this.objAzimuth=this.degToRad(parseInt(event.target.value),-90)
         this.model.setObjAzimuth (this.objAzimuth)
-        this.handleXY()
+        const refModelShape = this.model.getRefModelShape(4)
+        this.setState({refModelShape},this.handleXY)
     }
-
-    handleDecreaseObjAzimuth = ()=>{
-        this.objAzimuth -=5/180*Math.PI
-        this.model.setObjAzimuth (this.objAzimuth)
-        this.handleXY()
-    }
-
-    handleIncreaseSunAzimuth = ()=>{
-        this.sunAzimuth +=5/180*Math.PI
+    handleSunAzimuth=(event)=>{
+        this.sunAzimuth=this.degToRad(parseInt(event.target.value),-180)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.handleXY()
     }
 
-    handleDecreaseSunAzimuth = ()=>{
-        this.sunAzimuth -=5/180*Math.PI
-        this.model.setSunAzimuth (this.sunAzimuth)
-        this.handleXY()
-    }
-
-    handleDecreaseElevation  = ()=>{
-        this.elevation -= 1/180*Math.PI
+    handleElevation=(event)=>{
+        this.elevation=this.degToRad(parseInt(event.target.value),-90)
         this.model.setElevation(this.elevation)
         this.handleXY()
-    }
-
-    handleIncreaseElevation  = ()=>{
-        this.elevation += 1/180*Math.PI
-        this.model.setElevation(this.elevation)
-        this.handleXY()  
     }
 
     resetHandleXY = ()=>{
@@ -88,8 +70,8 @@ class Board extends Component {
         this.model.setObjAzimuth (this.objAzimuth)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.model.setElevation(this.elevation)
-
-        this.handleXY()
+        const refModelShape = this.model.getRefModelShape(4)
+        this.setState({refModelShape},this.handleXY)
     }
 
     resetHandleXZ = ()=>{
@@ -101,8 +83,8 @@ class Board extends Component {
         this.model.setObjAzimuth (this.objAzimuth)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.model.setElevation(this.elevation)
-
-        this.handleXY()
+        const refModelShape = this.model.getRefModelShape(4)
+        this.setState({refModelShape},this.handleXY)
     }
 
     resetHandleYZ = ()=>{
@@ -114,8 +96,8 @@ class Board extends Component {
         this.model.setObjAzimuth (this.objAzimuth)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.model.setElevation(this.elevation)
-
-        this.handleXY()
+        const refModelShape = this.model.getRefModelShape(4)
+        this.setState({refModelShape},this.handleXY)
     }
 
     isPeripheral =(index, references) => {
@@ -161,24 +143,51 @@ class Board extends Component {
 
                 <>
                     <div>
-                        <button onClick={this.handleDecreaseObjAzimuth}>Object Az -5 {this.radToDeg(this.state.objAzimuth,90)}</button>
-                        <button onClick={this.handleIncreaseObjAzimuth}>Object Az +5 {this.radToDeg(this.state.objAzimuth,90)}</button>
+                        <div className ="configurator">
+                            <h3>Object Azimut</h3>
+                            <input id="objAzimuthHandler" 
+                            type="range" 
+                            min="0" max="360" 
+                            value={this.radToDeg(this.state.objAzimuth,90)} 
+                            onChange={this.handleObjAzimuth}
+                            step="2"/>
+                        </div>
+                        <div className ="configurator">
+                            <h3>Sun Azimut</h3>
+                            <input id="sunAzimuthHandler" 
+                            type="range" 
+                            min="0" max="360" 
+                            value={this.radToDeg(this.state.sunAzimuth,180)} 
+                            onChange={this.handleSunAzimuth}
+                            step="2"/>
+                        </div>
+                        <div className ="configurator">
+                            <h3>Sun Elevation</h3>
+                            <input id="elevationHandler" 
+                            type="range" 
+                            min="0" max="90" 
+                            value={this.radToDeg(this.state.elevation,90)} 
+                            onChange={this.handleElevation}
+                             step="1" />
+                        </div>
+                        <div className ="configurator">
+                            <h3>Reset</h3>
+                            <button onClick={this.resetHandleXY}>XY plane</button>
+                            <button onClick={this.resetHandleXZ}>XZ plane</button>
+                            <button onClick={this.resetHandleYZ}>YZ plane</button>
+                        </div>
                         
-                        <button onClick={this.handleDecreaseSunAzimuth}>Sun Az -5 {this.radToDeg(this.state.sunAzimuth,180)}</button>
-                        <button onClick={this.handleIncreaseSunAzimuth}>Sun Az +5 {this.radToDeg(this.state.sunAzimuth,180)}</button>
 
-                        <button onClick={this.handleDecreaseElevation}>Elevation -1 {this.radToDeg(this.state.elevation,90)}</button>
-                        <button onClick={this.handleIncreaseElevation}>Elevation +1 {this.radToDeg(this.state.elevation,90)}</button>
-                        
-                        <button onClick={this.resetHandleXY}>XY plane</button>
-                        <button onClick={this.resetHandleXZ}>XZ plane</button>
-                        <button onClick={this.resetHandleYZ}>YZ plane</button>
                     </div>
                     <div>
-                        <svg viewBox="-50 -50 150 150" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="-20 -20 150 150" xmlns="http://www.w3.org/2000/svg">
                             {this.state.segments.map((points,index)=> <Segment points={points} key={"s"+this.state.segments.length+this.state.points.length+index}/>)}
                             {this.state.points.map((point,index)=> <Point point={point} key={"p"+this.state.segments.length+this.state.points.length+index}/>)}
-                            
+                            <SunPositionIndicator 
+                                sunAzimuth={this.state.sunAzimuth} 
+                                objAzimuth={this.state.objAzimuth} 
+                                elevation = {this.state.elevation}
+                                shape = {this.state.refModelShape}/>
                         </svg>
                     </div>
                 </>
