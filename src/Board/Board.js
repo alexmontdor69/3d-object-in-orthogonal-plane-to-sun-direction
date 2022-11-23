@@ -177,11 +177,11 @@ class Board extends Component {
                     The projected 3D model is recalculated when the user is changing the configuration parameters.
                     <h2>Parameters</h2>
                     The user can change 3 Parameters :
-                    <li>
-                        <ul>Objet azimuth: The orientation of the object in the horizontal plane</ul>
-                        <ul>Sun azimuth : The angle of the projected position of the sun in the horizontal plane</ul>
-                        <ul>Elevation :  The angle of between the direction to the sun at the origin in the horizontal plane</ul>
-                    </li>
+                    <ul>
+                        <li>Objet azimuth: The orientation of the object in the horizontal plane</li>
+                        <li>Sun azimuth : The angle of the projected position of the sun in the horizontal plane</li>
+                        <li>Elevation :  The angle of between the direction to the sun at the origin in the horizontal plane</li>
+                    </ul>
                     There are 3 visual indicators showing the impact of each parameters.
                     <h2>Models</h2>
                     This software includes 2 models.
