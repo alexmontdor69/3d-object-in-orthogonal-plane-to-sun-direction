@@ -1,4 +1,4 @@
-# Display a 3D object in a Solar Plane
+# Display a 3D object in a Plane orthogonal to the sun beams
 
 ## Objective
 The objective is to simulate the position of points of a model in the plane orthogonal to direction of the sun beams.
@@ -11,18 +11,35 @@ With the help of the range bar, The user can vary either :
 
 The user can reset the position of the object and access to different plane view. The azimuth and elevation angle are changed.
 
-All the angle are indicated and some graphical indicator allow a better understand of the orientation of the 3D model.
+All the angle are indicated and some visual indicators allow a better understand of the orientation of the 3D model.
 
+## Libraries
+This app uses 2 open source libraries.
 
-## Matrix Lib
-Simple Matrix library to calculate:
-- matrix transpose
-- 2 matrices multiplication
+- [solar-plane-calculator](https://github.com/alexmontdor69/solar-plane-calculator)
+- [matrix-lib-js](https://github.com/alexmontdor69/matrix-lib-js)
 
-### `npm start` 
- 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Run this application
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Requirement
+
+npm should be install
+
+### Command
+- developpement mode
+
+<code>
+npm install
+npm start
+</code>
+
+- production mode
+
+<code>
+npm install
+npm build
+serve -s build
+</code>
+
+The application runs in develocally theoritically on [http://localhost:3000](http://localhost:3000) accessible from any web browser
+
