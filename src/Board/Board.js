@@ -189,7 +189,7 @@ class Board extends Component {
                     It is the 3D Model of an house with 4 vertical walls (dimensions :14x5 and 9x5) and a 4 slopes roof. The model includes 10 points or summits and 17 segments.
                     <h3>Tree Model</h3>
                     The tree is represented by a 2D model and an axis of rotation. The total height of the tree is 18 and its width is 5. The axis of symmetry is located at 2.5. The model includes 12 points or summits and 10 segments.
-                    <h3></h3>
+
                 </div> :
                 <>
                     <div>
