@@ -10,7 +10,8 @@ class SunPositionIndicator extends Component {
             objAzimuth:this.props.objAzimuth, 
             sunAzimuth:this.props.sunAzimuth, 
             elevation:this.props.elevation,
-            shape:this.props.shape
+            shape:this.props.shape,
+            
         }
     }
     componentDidUpdate (prevProps){
@@ -34,9 +35,12 @@ class SunPositionIndicator extends Component {
         return angle<= 180?"0":"1"
     }
 
+
+
     render(){
         return(<>
             {this.state.shape.map((points,index)=> <Segment points={points} refX={0} refY={20} key={"shape1-"+index}/>)}
+            
             <text 
                     x="-10" 
                     y="31"

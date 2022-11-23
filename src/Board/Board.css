@@ -4,3 +4,10 @@
     padding: 2px;
     border: dotted 1px darkgrey;
 }
+.description {
+    display: block;
+    margin: 5px;
+    padding: 2px;
+    text-align: left;
+    font-size : 0.75em;
+}

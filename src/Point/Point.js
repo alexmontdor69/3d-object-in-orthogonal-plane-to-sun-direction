@@ -13,8 +13,10 @@ class Point extends Component{
     }
 
     componentDidUpdate (prevProps){
+
         if (!_.isEqual(this.props.point,prevProps.point))
             {
+                console.log (this.props.point)
                 this.setState ({
                     point:this.props.point
                     
@@ -24,7 +26,14 @@ class Point extends Component{
 
     render (){
         return (
+        <>
             <circle cx={this.state.point.x} cy={this.state.point.y} r={1} fill={this.state.point.color||'blue'}/>
+            <text 
+                    x={this.state.point.x}
+                    y={this.state.point.y}
+                    style={{fontSize: "2px"}}>
+                    {this.state.point.label}</text>
+        </>
             )
         }
 }

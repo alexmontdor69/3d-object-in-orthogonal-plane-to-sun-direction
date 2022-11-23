@@ -7,6 +7,7 @@ import ReactSelect from 'react-select';
 import SolarPlaneCalculator from 'solar-plane-calculator';
 import SunPositionIndicator from '../SunPositionIndicator/SunPositionIndicator';
 
+
 class Board extends Component { 
     constructor (){
         super()
@@ -17,12 +18,14 @@ class Board extends Component {
         //this.model = []
         
         this.state={
+            rotatedObject:[],
             initializing:true,
             points:[],
             segments : [],
             sunAzimuth :this.sunAzimuth,
             objAzimuth :this.objAzimuth,
-            elevation : this.elevation
+            elevation : this.elevation,
+            pointIndexes : []
         }
         this.options=Object.keys(models).map(value=>({value,label:models[value].name}))
         
@@ -30,23 +33,54 @@ class Board extends Component {
 
     selectModelFrom= (choice)=> {
         console.log (`Display the model ${choice}`)
+        this.choice = choice
+        if (this.choice==='tree')
+            this.objAzimuth=this.sunAzimuth
 
         this.model=new SolarPlaneCalculator(models[choice], this.objAzimuth, this.sunAzimuth, this.elevation)
-        const refModelShape = this.model.getRefModelShape(4)
-        this.setState({initializing:false,refModelShape},this.handleXY)
+        const refModelShape = this.model.getRefModelShapeByUnit(4)
+        const rotatedObject = this.model.getRefModelByUnit(4)
+        this.setState({initializing:false,refModelShape,rotatedObject,pointIndexes: this.model.getPeripheralPointIndexes()},this.handleXY)
     }
 
-    handleObjAzimuth=(event)=>{
-        this.objAzimuth=this.degToRad(parseInt(event.target.value),-90)
-        this.model.setObjAzimuth (this.objAzimuth)
-        const refModelShape = this.model.getRefModelShape(4)
-        this.setState({refModelShape},this.handleXY)
+    handleObjAzimuth=(event)=>{  
+        this.objAzimuth=this.degToRad(parseInt(event.target.value),-90)      
+        if (this.choice==='tree') {
+            this.sunAzimuth=this.objAzimuth
+            this.model.setObjAzimuth (this.objAzimuth)
+            this.model.setSunAzimuth (this.sunAzimuth)
+            const refModelShape = this.model.getRefModelShapeByUnit(4)
+            const rotatedObject = this.model.getRefModelByUnit(4)
+            this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
+        }
+        else {
+            this.model.setObjAzimuth (this.objAzimuth)
+            const refModelShape = this.model.getRefModelShapeByUnit(4)
+            const rotatedObject = this.model.getRefModelByUnit(4)
+            this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
+        }
     }
 
     handleSunAzimuth=(event)=>{
         this.sunAzimuth=this.degToRad(parseInt(event.target.value),-180)
-        this.model.setSunAzimuth (this.sunAzimuth)
-        this.handleXY()
+
+        if (this.choice==='tree') {
+            this.objAzimuth=this.sunAzimuth
+            this.model.setObjAzimuth (this.objAzimuth)
+            this.model.setSunAzimuth (this.sunAzimuth)
+            const refModelShape = this.model.getRefModelShapeByUnit(4)
+            const rotatedObject = this.model.getRefModelByUnit(4)
+        this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
+
+        }
+        else {
+            this.model.setSunAzimuth (this.sunAzimuth)
+            const refModelShape = this.model.getRefModelShapeByUnit(4)
+            const rotatedObject = this.model.getRefModelByUnit(4)
+        this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
+
+        }
+
     }
 
     handleElevation=(event)=>{
@@ -64,8 +98,9 @@ class Board extends Component {
         this.model.setObjAzimuth (this.objAzimuth)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.model.setElevation(this.elevation)
-        const refModelShape = this.model.getRefModelShape(4)
-        this.setState({refModelShape},this.handleXY)
+        const refModelShape = this.model.getRefModelShapeByUnit(4)
+        const rotatedObject = this.model.getRefModelByUnit(4)
+        this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
     }
 
     resetHandleXZ = ()=>{
@@ -77,8 +112,9 @@ class Board extends Component {
         this.model.setObjAzimuth (this.objAzimuth)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.model.setElevation(this.elevation)
-        const refModelShape = this.model.getRefModelShape(4)
-        this.setState({refModelShape},this.handleXY)
+        const refModelShape = this.model.getRefModelShapeByUnit(4)
+        const rotatedObject = this.model.getRefModelByUnit(4)
+        this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
     }
 
     resetHandleYZ = ()=>{
@@ -90,33 +126,34 @@ class Board extends Component {
         this.model.setObjAzimuth (this.objAzimuth)
         this.model.setSunAzimuth (this.sunAzimuth)
         this.model.setElevation(this.elevation)
-        const refModelShape = this.model.getRefModelShape(4)
-        this.setState({refModelShape},this.handleXY)
+        const refModelShape = this.model.getRefModelShapeByUnit(4)
+        const rotatedObject = this.model.getRefModelByUnit(4)
+        this.setState({initializing:false,refModelShape,rotatedObject},this.handleXY)
     }
 
     isPeripheral =(index, references) => {
         return references && references.length >0 && references.some(id=>id===index.toString())
     }
-    handleXY (){
-        console.log ('==========================') 
+
+    handleXY =()=>{
+        console.log ('==========================', this.state.rotatedObject) 
 
         let points =this.model.getPoints()
         const pointIndexes =this.model.getPeripheralPointIndexes()
         points=points.map((point,index)=>({...point, color :this.isPeripheral(index,pointIndexes)?'orange':''}))
-
+        
         const segments =this.model.getSegments()
-
+        
         console.log ('__Display the model')
         this.setState({
             points, 
             segments, 
             elevation: this.elevation,
             sunAzimuth: this.sunAzimuth,
-            objAzimuth: this.objAzimuth
+            objAzimuth: this.objAzimuth,
+            pointIndexes: this.model.getPeripheralPointIndexes()
         })
     }
-
-
 
     radToDeg=(a,offset=0)=>{
         return offset+Math.floor((a) /Math.PI*180)
@@ -128,17 +165,36 @@ class Board extends Component {
         return angle
     }
 
-    render () {
+    render =()=> {
         return(
         <>
-         <ReactSelect options={this.options} onChange={(model)=>this.selectModelFrom(model.value)}/>
+        <h1>3D object projected in a plane orthogonal to sun beams</h1>
+        <ReactSelect options={this.options} onChange={(model)=>this.selectModelFrom(model.value)} placeholder={`Select a Model`}/>
             {this.state.initializing?
-                <div>Initializing Boards</div> :
-
+                <div className='description'>
+                    <h2>Behaviour</h2>
+                    The software projects the selected model in the plane orthogonal to the sun beams. The yellow points are defining the model 'external contour' in this plane, the blue points are inside the contour.
+                    The projected 3D model is recalculated when the user is changing the configuration parameters.
+                    <h2>Parameters</h2>
+                    The user can change 3 Parameters :
+                    <li>
+                        <ul>Objet azimuth: The orientation of the object in the horizontal plane</ul>
+                        <ul>Sun azimuth : The angle of the projected position of the sun in the horizontal plane</ul>
+                        <ul>Elevation :  The angle of between the direction to the sun at the origin in the horizontal plane</ul>
+                    </li>
+                    There are 3 visual indicators showing the impact of each parameters.
+                    <h2>Models</h2>
+                    This software includes 2 models.
+                    <h3>House Model</h3>
+                    It is the 3D Model of an house with 4 vertical walls (dimensions :14x5 and 9x5) and a 4 slopes roof. The model includes 10 points or summits and 17 segments.
+                    <h3>Tree Model</h3>
+                    The tree is represented by a 2D model and an axis of rotation. The total height of the tree is 18 and its width is 5. The axis of symmetry is located at 2.5. The model includes 12 points or summits and 10 segments.
+                    <h3></h3>
+                </div> :
                 <>
                     <div>
                         <div className ="configurator">
-                            <h3>Object Azimut</h3>
+                            <h3>Object Azimuth</h3>
                             <input id="objAzimuthHandler" 
                             type="range" 
                             min="0" max="360" 
@@ -147,7 +203,7 @@ class Board extends Component {
                             step="2"/>
                         </div>
                         <div className ="configurator">
-                            <h3>Sun Azimut</h3>
+                            <h3>Sun Azimuth</h3>
                             <input id="sunAzimuthHandler" 
                             type="range" 
                             min="0" max="360" 
@@ -165,7 +221,7 @@ class Board extends Component {
                              step="1" />
                         </div>
                         <div className ="configurator">
-                            <h3>Reset</h3>
+                            <h3>Object View in</h3>
                             <button onClick={this.resetHandleXY}>XY plane</button>
                             <button onClick={this.resetHandleXZ}>XZ plane</button>
                             <button onClick={this.resetHandleYZ}>YZ plane</button>
@@ -189,8 +245,6 @@ class Board extends Component {
         </>
         )
     }
-        
-    
 }
 
 export default Board;
